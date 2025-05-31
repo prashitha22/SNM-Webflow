@@ -1,190 +1,259 @@
-$(document).ready(function () {
-  $(".hamburger-menu").on("click", function () {
-    $(".header-right").toggleClass("show");
-  });
+// Wait for DOM to be ready using plain JS instead of jQuery
+document.addEventListener('DOMContentLoaded', function() {
+  // Cache DOM elements
+  const domCache = {
+    hamburgerMenu: document.querySelector('.hamburger-menu'),
+    headerRight: document.querySelector('.header-right'),
+    faqImg: document.querySelector('.faq-img'),
+    glowOverlay: document.querySelector('.glow-overlay'),
+    timeline: document.querySelector('.webflow-help-timeline'),
+    timelineItems: document.querySelectorAll('.timeline-item'),
+    openPopupBtns: document.querySelectorAll('.open-popup-btn'),
+    popupOverlay: document.querySelector('.popup-overlay'),
+    popupBox: document.querySelector('.popup-box'),
+    closePopup: document.querySelector('.close-popup'),
+    faqQuestions: document.querySelectorAll('.faq-question'),
+    webflowProjectsSection: document.querySelector('.webflow-projects-section')
+  };
 
-  //Services Slider
-  $(".webflow-services-list").slick({
-    slidesToShow: 3,
-    slidesToScroll: 3,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: false,
-    dots: false,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 2,
-        },
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
-  });
-
-  //Testmonial Slider
-
-  $(".testmonial-slider").slick({
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    dots: true,
-    autoplay: true,
-    autoplaySpeed: 4000,
-    infinite: true,
-    responsive: [
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-      {
-        breakpoint: 480,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
-  });
-
-  //FAQ Accordion
-
-  $(".faq-question").click(function () {
-    var $faqItem = $(this).closest(".faq-item");
-
-    // Close all other items
-    $(".faq-item")
-      .not($faqItem)
-      .removeClass("active")
-      .find(".faq-answer")
-      .slideUp();
-    $(".faq-item")
-      .not($faqItem)
-      .find(".toggle-icon")
-      .attr("src", "images/plus-icon.svg");
-
-    // Toggle current
-    $faqItem.toggleClass("active");
-    $faqItem.find(".faq-answer").slideToggle();
-
-    // Toggle icon
-    var icon = $faqItem.hasClass("active")
-      ? "images/minus-icon.svg"
-      : "images/plus-icon.svg";
-    $faqItem.find(".toggle-icon").attr("src", icon);
-  });
-
-  //Popup
-
-  $(".open-popup-btn").click(function () {
-    $(".popup-overlay, .popup-box").fadeIn();
-  });
-
-  $(".close-popup, .popup-overlay").click(function () {
-    $(".popup-overlay, .popup-box").fadeOut();
-  });
-
-  $(".popup-box").click(function (e) {
-    e.stopPropagation();
-  });
-});
-
-//Add glow to the grids while mouse moves
-
-document.querySelector(".faq-img").addEventListener("mousemove", function (e) {
-  const glow = document.querySelector(".glow-overlay");
-  const rect = this.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  glow.style.left = `${x}px`;
-  glow.style.top = `${y}px`;
-  glow.style.opacity = 1;
-});
-
-document.querySelector(".faq-img").addEventListener("mouseleave", function () {
-  document.querySelector(".glow-overlay").style.opacity = 0;
-});
-
-//Animate the timeline
-
-document.addEventListener("DOMContentLoaded", () => {
-  const items = document.querySelectorAll(".timeline-item");
-
-  items.forEach((item, index) => {
-    setTimeout(() => {
-      item.classList.add("visible");
-    }, index * 300); // Staggered animation
-  });
-  const timeline = document.querySelector(".webflow-help-timeline");
-  const timelineItems = document.querySelectorAll(".timeline-item");
-
-  function getMaxLineHeight() {
-    return window.innerWidth <= 767 ? 773 : 545;
+  // Mobile menu toggle
+  if (domCache.hamburgerMenu && domCache.headerRight) {
+    domCache.hamburgerMenu.addEventListener('click', function() {
+      domCache.headerRight.classList.toggle('show');
+    });
   }
 
-  function animateTimeline() {
-    const viewportBottom = window.scrollY + window.innerHeight;
-    const timelineTop = timeline.offsetTop;
-    const maxLineHeightPx = getMaxLineHeight();
+  // Initialize sliders only if they exist on page
+  function initSliders() {
+    // Services Slider
+    if (document.querySelector('.webflow-services-list')) {
+      $(".webflow-services-list").slick({
+        slidesToShow: 3,
+        slidesToScroll: 3,
+        autoplay: true,
+        autoplaySpeed: 3000,
+        arrows: false,
+        dots: false,
+        responsive: [
+          {
+            breakpoint: 1024,
+            settings: { slidesToShow: 2 }
+          },
+          {
+            breakpoint: 768,
+            settings: { slidesToShow: 1 }
+          }
+        ]
+      });
+    }
 
-    if (viewportBottom >= timelineTop + 100) {
-      const totalScrollable = window.innerHeight;
-      const scrolledPast = viewportBottom - timelineTop;
-      const scrollRatio = Math.min(scrolledPast / totalScrollable, 1);
-      const visibleHeight = Math.min(
-        scrollRatio * maxLineHeightPx,
-        maxLineHeightPx
-      );
+    // Testimonial Slider
+    if (document.querySelector('.testmonial-slider')) {
+      $(".testmonial-slider").slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        arrows: false,
+        dots: true,
+        autoplay: true,
+        autoplaySpeed: 4000,
+        infinite: true,
+        responsive: [
+          {
+            breakpoint: 768,
+            settings: { slidesToShow: 1 }
+          },
+          {
+            breakpoint: 480,
+            settings: { slidesToShow: 1 }
+          }
+        ]
+      });
+    }
+  }
 
-      // Apply pixel value to custom property
-      timeline.style.setProperty("--line-height", `${visibleHeight}px`);
+  // FAQ Accordion
+  function setupFAQAccordion() {
+    if (domCache.faqQuestions.length) {
+      domCache.faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+          const faqItem = this.closest('.faq-item');
+          const isActive = faqItem.classList.contains('active');
+          const allFaqItems = document.querySelectorAll('.faq-item');
+          const toggleIcon = this.querySelector('.toggle-icon');
+          
+          // Close all other items
+          allFaqItems.forEach(item => {
+            if (item !== faqItem) {
+              item.classList.remove('active');
+              const answer = item.querySelector('.faq-answer');
+              const icon = item.querySelector('.toggle-icon');
+              if (answer) answer.style.display = 'none';
+              if (icon) icon.src = "images/plus-icon.svg";
+            }
+          });
+          
+          // Toggle current item
+          faqItem.classList.toggle('active');
+          const answer = faqItem.querySelector('.faq-answer');
+          if (answer) {
+            answer.style.display = faqItem.classList.contains('active') ? 'block' : 'none';
+          }
+          if (toggleIcon) {
+            toggleIcon.src = faqItem.classList.contains('active') 
+              ? "images/minus-icon.svg" 
+              : "images/plus-icon.svg";
+          }
+        });
+      });
+    }
+  }
 
-      // Reveal circles that fall within the animated line
-      timelineItems.forEach((item) => {
-        const itemTop = item.offsetTop;
-        if (itemTop <= visibleHeight) {
-          item.classList.add("active");
+  // Popup functionality
+  function setupPopups() {
+    if (domCache.openPopupBtns.length && domCache.popupOverlay && domCache.popupBox) {
+      domCache.openPopupBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          domCache.popupOverlay.style.display = 'block';
+          domCache.popupBox.style.display = 'block';
+        });
+      });
+      
+      domCache.closePopup.addEventListener('click', function() {
+        domCache.popupOverlay.style.display = 'none';
+        domCache.popupBox.style.display = 'none';
+      });
+      
+      domCache.popupOverlay.addEventListener('click', function() {
+        this.style.display = 'none';
+        domCache.popupBox.style.display = 'none';
+      });
+      
+      domCache.popupBox.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+  }
+
+  // Glow effect with throttling
+  function setupGlowEffect() {
+    if (domCache.faqImg && domCache.glowOverlay) {
+      let lastTime = 0;
+      const throttleDelay = 50; // milliseconds
+      
+      const updateGlowPosition = function(e) {
+        const now = Date.now();
+        if (now - lastTime >= throttleDelay) {
+          const rect = domCache.faqImg.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          
+          domCache.glowOverlay.style.left = `${x}px`;
+          domCache.glowOverlay.style.top = `${y}px`;
+          domCache.glowOverlay.style.opacity = '1';
+          
+          lastTime = now;
+        }
+      };
+      
+      domCache.faqImg.addEventListener('mousemove', updateGlowPosition);
+      domCache.faqImg.addEventListener('mouseleave', function() {
+        domCache.glowOverlay.style.opacity = '0';
+      });
+    }
+  }
+
+  // Timeline animation with IntersectionObserver
+  function setupTimelineAnimation() {
+    if (domCache.timeline && domCache.timelineItems.length) {
+      const getMaxLineHeight = () => window.innerWidth <= 767 ? 773 : 545;
+      let animationFrameId = null;
+      
+      const animateTimeline = () => {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+        
+        animationFrameId = requestAnimationFrame(() => {
+          const viewportBottom = window.scrollY + window.innerHeight;
+          const timelineTop = domCache.timeline.offsetTop;
+          const maxLineHeightPx = getMaxLineHeight();
+          
+          if (viewportBottom >= timelineTop + 100) {
+            const totalScrollable = window.innerHeight;
+            const scrolledPast = viewportBottom - timelineTop;
+            const scrollRatio = Math.min(scrolledPast / totalScrollable, 1);
+            const visibleHeight = Math.min(scrollRatio * maxLineHeightPx, maxLineHeightPx);
+            
+            domCache.timeline.style.setProperty('--line-height', `${visibleHeight}px`);
+            
+            domCache.timelineItems.forEach(item => {
+              if (item.offsetTop <= visibleHeight) {
+                item.classList.add('active');
+              }
+            });
+          }
+        });
+      };
+      
+      // Use IntersectionObserver to only animate when in view
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            window.addEventListener('scroll', animateTimeline, { passive: true });
+            animateTimeline();
+          } else {
+            window.removeEventListener('scroll', animateTimeline);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      observer.observe(domCache.timeline);
+      
+      // Initial animation for visible items
+      domCache.timelineItems.forEach((item, index) => {
+        setTimeout(() => {
+          item.classList.add('visible');
+        }, index * 100); // Reduced delay for faster initial animation
+      });
+      
+      // Cleanup on resize
+      window.addEventListener('resize', () => {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+        }
+        animateTimeline();
+      }, { passive: true });
+    }
+  }
+
+  // Initialize AOS only if needed
+  function initAOS() {
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        once: true,
+        offset: 120,
+        duration: 600,
+        easing: "ease-in-out",
+        delay: 100,
+      });
+      
+      window.addEventListener('load', function() {
+        AOS.refresh();
+        
+        // Check for webflow projects section
+        if (domCache.webflowProjectsSection) {
+          AOS.refreshHard();
+          setTimeout(() => AOS.refreshHard(), 500);
         }
       });
     }
   }
 
-  window.addEventListener("scroll", animateTimeline);
-  window.addEventListener("resize", animateTimeline); // re-evaluate on resize
-  animateTimeline();
-});
-
-//Page Loaded Animation
-document.addEventListener("DOMContentLoaded", function () {
-  AOS.init({
-    // Your AOS configuration
-    once: true, // Animations only happen once
-    offset: 120, // Change offset if needed
-    duration: 600,
-    easing: "ease-in-out",
-    delay: 100,
-  });
-
-  window.addEventListener("load", function () {
-    AOS.refresh();
-  });
-});
-
-function checkWebflowProjects() {
-  const section = document.querySelector(".webflow-projects-section");
-  if (section) {
-    AOS.refreshHard();
-  }
-}
-
-window.addEventListener("load", function () {
-  checkWebflowProjects();
-  setTimeout(checkWebflowProjects, 500);
+  // Initialize all components
+  initSliders();
+  setupFAQAccordion();
+  setupPopups();
+  setupGlowEffect();
+  setupTimelineAnimation();
+  initAOS();
 });
